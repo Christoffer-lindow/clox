@@ -15,10 +15,10 @@ namespace App
                 Environment.Exit(3);
             }
             DefineAst(Directory.GetCurrentDirectory(), "Expr", new List<string>{
-            "Binary   : Expr left, Token op, Expr right",
-            "Grouping : Expr expression",
-            "Literal  : object value",
-            "Unary    : Token op, Expr right"
+            "Binary   : Expr Left, Token op, Expr Right",
+            "Grouping : Expr Expression",
+            "Literal  : object Value",
+            "Unary    : Token Op, Expr Right"
         });
         }
 
@@ -29,7 +29,11 @@ namespace App
             {
                 sw.WriteLine("using System.Collections.Generic;");
                 sw.WriteLine("namespace App {");
-                sw.WriteLine("\tabstract class " + baseName + " {}");
+                sw.WriteLine("\tpublic abstract class " + baseName + " {");
+                sw.WriteLine("\t\tpublic abstract T accept<T>(Visitor<T> visitor);");
+                sw.WriteLine("\t}");
+                DefineVisitor(sw, baseName, types);
+
                 types.ForEach(type =>
                 {
                     var typeArr = type.Split(':');
@@ -45,18 +49,33 @@ namespace App
         private static void DefineType(StreamWriter sw, string baseName, string className, string fields)
         {
             var stringFields = fields.Split(", ");
-            sw.WriteLine($"\tclass {className}: {baseName}" + "{");
+            sw.WriteLine($"\tpublic class {className}: {baseName}" + "{");
             foreach (var field in stringFields)
             {
-                sw.WriteLine($"\t\t{field};");
+                sw.WriteLine($"\t\tpublic {field};");
             }
-            sw.WriteLine($"\t\t{className}({fields}) " + "{");
+            sw.WriteLine($"\t\tpublic {className}({fields}) " + "{");
             foreach (var field in stringFields)
             {
                 var name = field.Split(" ")[1];
                 sw.WriteLine($"\t\t\tthis.{name} = {name};");
             }
             sw.WriteLine("\t\t}");
+            sw.WriteLine("\t\tpublic override T accept<T>(Visitor<T> visitor) {");
+            sw.WriteLine($"\t\t\t return visitor.visit{className}{baseName}(this);");
+            sw.WriteLine("\t\t}");
+            sw.WriteLine("\t}");
+        }
+
+        private static void DefineVisitor(StreamWriter sw, string baseName, List<string> types)
+        {
+            sw.WriteLine("\tpublic interface Visitor<T> {");
+            foreach (var type in types)
+            {
+                var typeArr = type.Split(':');
+                var className = typeArr[0].Trim();
+                sw.WriteLine($"\t\tT visit{className}{baseName} ({className} {baseName.ToLower()} );");
+            }
             sw.WriteLine("\t}");
         }
 
