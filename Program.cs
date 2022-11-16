@@ -4,11 +4,23 @@ using System.IO;
 
 namespace App
 {
-    class Program
+    public class Program
     {
         private static bool HadError = false;
         public static void Main()
         {
+
+            Expr expression = new Binary(
+            new Unary(
+                new Token(TokenType.MINUS, "-", null, 1),
+                new Literal(123)),
+            new Token(TokenType.STAR, "*", null, 1),
+            new Grouping(
+                new Literal(45.67)));
+
+            Console.WriteLine(new AstPrinter().Print(expression));
+
+
             var args = GetCommandLineArgs();
             if (args.Length > 1)
             {
@@ -86,7 +98,7 @@ namespace App
         }
     }
 
-    enum TokenType
+    public enum TokenType
     {
         IDENTIFIER,
         // Single-character tokens.
@@ -109,11 +121,11 @@ namespace App
         EOF
     }
 
-    class Token
+    public class Token
     {
-        private TokenType Type;
-        private String Lexeme;
-        private Object Literal;
+        public TokenType Type;
+        public String Lexeme;
+        public Object Literal;
         private int Line;
 
         public Token(TokenType type, String lexeme, Object literal, int Line)
@@ -130,7 +142,7 @@ namespace App
         }
     }
 
-    class Scanner
+    public class Scanner
     {
         private Dictionary<string, TokenType> Keywords;
         private String Source;
