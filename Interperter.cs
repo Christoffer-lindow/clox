@@ -1,16 +1,26 @@
 using System;
+using System.Collections.Generic;
+
 namespace App
 {
-    class Interperter : Visitor<object>
+    class Interperter : Expr.Visitor<object>, Stmt.Visitor<object>
     {
-        public void Interpret(Expr expression)
+        public void Interpret(List<Stmt> statements)
         {
             try {
-                object value = Evaluate(expression);
-                Console.WriteLine(Stringify(value));
+                foreach (Stmt statement in statements)
+                {
+                    Execute(statement);
+                }
             } catch (RuntimeException ex)
             {
+                Program.RuntimeException(ex);
             }
+        }
+
+        private void Execute(Stmt stmt)
+        {
+            stmt.accept(this);
         }
 
         private string Stringify(object obj)
@@ -29,7 +39,7 @@ namespace App
 
             return obj.ToString();
         }
-        public object visitBinaryExpr(Binary expr)
+        public object visitBinaryExpr(Expr.Binary expr)
         {
             object left = Evaluate(expr.Left);
             object right = Evaluate(expr.Right);
@@ -78,17 +88,17 @@ namespace App
             return null;
         }
 
-        public object visitGroupingExpr(Grouping expr)
+        public object visitGroupingExpr(Expr.Grouping expr)
         {
             return Evaluate(expr.Expression);
         }
 
-        public object visitLiteralExpr(Literal expr)
+        public object visitLiteralExpr(Expr.Literal expr)
         {
             return expr.Value;
         }
 
-        public object visitUnaryExpr(Unary expr)
+        public object visitUnaryExpr(Expr.Unary expr)
         {
             object right = Evaluate(expr.Right);
 
@@ -135,6 +145,19 @@ namespace App
         {
             if (typeof(Double).IsInstanceOfType(left) && typeof(Double).IsInstanceOfType(right)) return;
             throw new RuntimeException(op, "Operand must be a number");
+        }
+
+        public object visitExpressionStmt(Stmt.Expression stmt)
+        {
+            Evaluate(stmt.expression);
+            return null;
+        }
+
+        public object visitPrintStmt(Stmt.Print stmt)
+        {
+            object value = stmt.expression.accept(this);
+            Console.WriteLine(Stringify(value));
+            return null;
         }
     }
 }
