@@ -15,11 +15,15 @@ namespace App
                 Environment.Exit(3);
             }
             DefineAst(Directory.GetCurrentDirectory(), "Expr", new List<string>{
-            "Binary   : Expr Left, Token op, Expr Right",
-            "Grouping : Expr Expression",
-            "Literal  : object Value",
-            "Unary    : Token Op, Expr Right"
-        });
+                "Binary   : Expr Left, Token op, Expr Right",
+                "Grouping : Expr Expression",
+                "Literal  : object Value",
+                "Unary    : Token Op, Expr Right"
+            });
+            DefineAst(Directory.GetCurrentDirectory(), "Stmt", new List<string>{
+                "Expression : Expr expression",
+                "Print      : Expr expression"
+            });
         }
 
         private static void DefineAst(string outputDir, string baseName, List<string> types)
@@ -31,7 +35,6 @@ namespace App
                 sw.WriteLine("namespace App {");
                 sw.WriteLine("\tpublic abstract class " + baseName + " {");
                 sw.WriteLine("\t\tpublic abstract T accept<T>(Visitor<T> visitor);");
-                sw.WriteLine("\t}");
                 DefineVisitor(sw, baseName, types);
 
                 types.ForEach(type =>
@@ -42,6 +45,7 @@ namespace App
                     DefineType(sw, baseName, className, fields);
                     sw.WriteLine();
                 });
+                sw.WriteLine("\t}");
                 sw.WriteLine("}");
             }
         }
