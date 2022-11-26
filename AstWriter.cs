@@ -37,7 +37,8 @@ namespace App
         {
             StringBuilder builder = new();
             builder.Append("(").Append(name);
-            exprs.ForEach(expr => {
+            exprs.ForEach(expr =>
+            {
                 builder.Append(" ");
                 builder.Append(expr.accept(this));
             });
