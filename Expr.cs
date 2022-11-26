@@ -2,7 +2,6 @@ using System.Collections.Generic;
 namespace App {
 	public abstract class Expr {
 		public abstract T accept<T>(Visitor<T> visitor);
-	}
 	public interface Visitor<T> {
 		T visitBinaryExpr (Binary expr );
 		T visitGroupingExpr (Grouping expr );
@@ -55,4 +54,5 @@ namespace App {
 		}
 	}
 
+	}
 }
