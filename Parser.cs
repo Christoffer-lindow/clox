@@ -12,14 +12,35 @@ namespace App
             Tokens = tokens;
         }
 
-        public Expr Parse()
+        public List<Stmt> Parse()
         {
-            try {
-                return Expression();
-            } catch (ParseException)
+            var statements = new List<Stmt>();
+            while (!IsAtEnd())
             {
-                return null;
+                statements.Add(Statement());
             }
+
+            return statements;
+        }
+
+        private Stmt Statement()
+        {
+            if (Match(TokenType.PRINT)) return PrintStatement();
+            return ExpressionStatement();
+        }
+
+        private Stmt PrintStatement()
+        {
+            Expr value = Expression();
+            Consume(TokenType.SEMICOLON, "Expect ';' after value." );
+            return new Stmt.Print(value);
+        }
+
+        private Stmt ExpressionStatement()
+        {
+            var expr = Expression();
+            Consume(TokenType.SEMICOLON, "Expect ';' after expression.");
+            return new Stmt.Expression(expr);
         }
 
         private Expr Expression()
@@ -36,7 +57,7 @@ namespace App
             {
                 Token op = Previous();
                 Expr right = Comparision();
-                expr = new Binary(expr, op, right);
+                expr = new Expr.Binary(expr, op, right);
             }
             return expr;
         }
@@ -99,7 +120,7 @@ namespace App
             {
                 Token op = Previous();
                 Expr right = Term();
-                expr = new Binary(expr, op, right);
+                expr = new Expr.Binary(expr, op, right);
             }
             return expr;
         }
@@ -114,7 +135,7 @@ namespace App
             {
                 Token op = Previous();
                 Expr right = Factor();
-                expr = new Binary(expr, op, right);
+                expr = new Expr.Binary(expr, op, right);
             }
 
             return expr;
@@ -129,7 +150,7 @@ namespace App
             {
                 Token op = Previous();
                 Expr right = this.Unary();
-                expr = new Binary(expr,op, right);
+                expr = new Expr.Binary(expr,op, right);
             }
 
             return expr;
@@ -143,29 +164,29 @@ namespace App
             {
                 Token op = Previous();
                 Expr right = this.Unary();
-                return new Unary(op, right);
+                return new Expr.Unary(op, right);
             }
             return Primary();
         }
 
         private Expr Primary()
         {
-            if (Match(TokenType.FALSE)) return new Literal(false);
-            if (Match(TokenType.TRUE)) return new Literal(true);
-            if (Match(TokenType.NIL)) return new Literal(null);
+            if (Match(TokenType.FALSE)) return new Expr.Literal(false);
+            if (Match(TokenType.TRUE)) return new Expr.Literal(true);
+            if (Match(TokenType.NIL)) return new Expr.Literal(null);
 
             var tokenTypes = new TokenType[] { TokenType.NUMBER, TokenType.STRING};
 
             if (Match(tokenTypes))
             {
-                return new Literal(Previous().Literal);
+                return new Expr.Literal(Previous().Literal);
             }
 
             if (Match(TokenType.LEFT_PAREN))
             {
                 Expr expr = Expression();
                 Consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.");
-                return new Grouping(expr);
+                return new Expr.Grouping(expr);
             }
 
             throw Error(Peek(), "Expect expression.");
