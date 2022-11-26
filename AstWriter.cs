@@ -4,26 +4,26 @@ using System.Text;
 namespace App
 {
 
-    public class AstPrinter : Visitor<string>
+    public class AstPrinter : Expr.Visitor<string>
     {
-        public string visitBinaryExpr(Binary expr)
+        public string visitBinaryExpr(Expr.Binary expr)
         {
             return Parenthesize(expr.op.Lexeme,
                                 new List<Expr> { expr.Left, expr.Right });
         }
 
-        public string visitGroupingExpr(Grouping expr)
+        public string visitGroupingExpr(Expr.Grouping expr)
         {
             return Parenthesize("group", new List<Expr> { expr.Expression });
         }
 
-        public string visitLiteralExpr(Literal expr)
+        public string visitLiteralExpr(Expr.Literal expr)
         {
             if (expr.Value == null) return "nil";
             return expr.Value.ToString();
         }
 
-        public string visitUnaryExpr(Unary expr)
+        public string visitUnaryExpr(Expr.Unary expr)
         {
             return Parenthesize(expr.Op.Lexeme, new List<Expr> { expr.Right });
         }
