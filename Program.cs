@@ -68,11 +68,13 @@ namespace App
             var scanner = new Scanner(source);
             List<Token> tokens = scanner.ScanTokens();
             Parser parser = new Parser(tokens);
-            Expr expression = parser.Parse();
+            var statements = parser.Parse();
             var errors = scanner.GetErrors();
-            errors.ForEach(error => Error(error.Item1, error.Item2));
-            if (HadError) return;
-            Interperter.Interpret(expression);
+            if (HadError) {
+                HadError = false;
+                return;
+            }
+            Interperter.Interpret(statements);
         }
 
         public static void Error(int line, String message)
