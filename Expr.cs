@@ -7,6 +7,7 @@ namespace App {
 		T visitBinaryExpr (Binary expr );
 		T visitGroupingExpr (Grouping expr );
 		T visitLiteralExpr (Literal expr );
+		T visitLogicalExpr (Logical expr );
 		T visitUnaryExpr (Unary expr );
 		T visitVariableExpr (Variable expr );
 	}
@@ -53,6 +54,20 @@ namespace App {
 		}
 		public override T accept<T>(Visitor<T> visitor) {
 			 return visitor.visitLiteralExpr(this);
+		}
+	}
+
+	public class Logical: Expr{
+		public Expr Left;
+		public Token Op;
+		public Expr Right;
+		public Logical(Expr Left, Token Op, Expr Right) {
+			this.Left = Left;
+			this.Op = Op;
+			this.Right = Right;
+		}
+		public override T accept<T>(Visitor<T> visitor) {
+			 return visitor.visitLogicalExpr(this);
 		}
 	}
 

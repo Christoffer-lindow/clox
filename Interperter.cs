@@ -205,5 +205,35 @@ namespace App
             ExecuteBlock(stmt.Statements, new Environment(environment));
             return null;
         }
+
+        public object visitIfStmt(Stmt.If stmt)
+        {
+            if (IsTruthy(Evaluate(stmt.Condition)))
+            {
+                Execute(stmt.ThenBrach);
+            }
+            else if (stmt.ElseBranch != null)
+            {
+                Execute(stmt.ElseBranch);
+            }
+            return null;
+        }
+
+        //FIXME: nil is truthy when it should be falsey
+        public object visitLogicalExpr(Expr.Logical expr)
+        {
+            object left = Evaluate(expr.Left);
+
+            if (expr.Op.Type == TokenType.OR)
+            {
+                if (IsTruthy(left)) return left;
+            } 
+            else 
+            {
+                if (!IsTruthy(left)) return left;
+            }
+
+            return Evaluate(expr.Right);
+        }
     }
 }

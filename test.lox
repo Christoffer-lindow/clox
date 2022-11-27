@@ -1,0 +1,10 @@
+var comparer = "abcdef";
+
+if (comparer == "abcdefg")
+{
+    print comparer;
+}
+else
+{
+    print "hit false";
+}

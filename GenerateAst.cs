@@ -19,12 +19,14 @@ namespace App
                 "Binary   : Expr Left, Token Op, Expr Right",
                 "Grouping : Expr Expression",
                 "Literal  : object Value",
+                "Logical  : Expr Left, Token Op, Expr Right",
                 "Unary    : Token Op, Expr Right",
                 "Variable : Token Name"
             });
             DefineAst(Directory.GetCurrentDirectory(), "Stmt", new List<string>{
                 "Block      : List<Stmt> Statements",
                 "Expression : Expr expression",
+                "If         : Expr Condition, Stmt ThenBrach, Stmt ElseBranch",
                 "Print      : Expr expression",
                 "Var        : Token Name, Expr Initializer"
             });

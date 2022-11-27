@@ -5,6 +5,7 @@ namespace App {
 	public interface Visitor<T> {
 		T visitBlockStmt (Block stmt );
 		T visitExpressionStmt (Expression stmt );
+		T visitIfStmt (If stmt );
 		T visitPrintStmt (Print stmt );
 		T visitVarStmt (Var stmt );
 	}
@@ -25,6 +26,20 @@ namespace App {
 		}
 		public override T accept<T>(Visitor<T> visitor) {
 			 return visitor.visitExpressionStmt(this);
+		}
+	}
+
+	public class If: Stmt{
+		public Expr Condition;
+		public Stmt ThenBrach;
+		public Stmt ElseBranch;
+		public If(Expr Condition, Stmt ThenBrach, Stmt ElseBranch) {
+			this.Condition = Condition;
+			this.ThenBrach = ThenBrach;
+			this.ElseBranch = ElseBranch;
+		}
+		public override T accept<T>(Visitor<T> visitor) {
+			 return visitor.visitIfStmt(this);
 		}
 	}
 
