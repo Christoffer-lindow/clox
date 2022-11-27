@@ -8,21 +8,25 @@ namespace App
     {
         public static void Run()
         {
-            var args = Environment.GetCommandLineArgs();
+            var args = System.Environment.GetCommandLineArgs();
             if (args.Length != 2)
             {
                 Console.Error.WriteLine("Usage: generate_ast <output directory>");
-                Environment.Exit(3);
+                System.Environment.Exit(3);
             }
             DefineAst(Directory.GetCurrentDirectory(), "Expr", new List<string>{
-                "Binary   : Expr Left, Token op, Expr Right",
+                "Assign   : Token Name, Expr value",
+                "Binary   : Expr Left, Token Op, Expr Right",
                 "Grouping : Expr Expression",
                 "Literal  : object Value",
-                "Unary    : Token Op, Expr Right"
+                "Unary    : Token Op, Expr Right",
+                "Variable : Token Name"
             });
             DefineAst(Directory.GetCurrentDirectory(), "Stmt", new List<string>{
+                "Block      : List<Stmt> Statements",
                 "Expression : Expr expression",
-                "Print      : Expr expression"
+                "Print      : Expr expression",
+                "Var        : Token Name, Expr Initializer"
             });
         }
 
