@@ -21,14 +21,14 @@ namespace App
             if (args.Length > 1)
             {
                 PrintUsage();
-                Environment.Exit(1);
+                System.Environment.Exit(1);
             }
             else if (args.Length is 1)
             {
                 if (args[0] == "gen")
                 {
                     GenerateAst.Run();
-                    Environment.Exit(0);
+                    System.Environment.Exit(0);
                 }
                 RunFile(args[0]);
             }
@@ -40,8 +40,8 @@ namespace App
 
         private static string[] GetCommandLineArgs()
         {
-            var argsLength = Environment.GetCommandLineArgs().Length;
-            return Environment.GetCommandLineArgs()[1..argsLength];
+            var argsLength = System.Environment.GetCommandLineArgs().Length;
+            return System.Environment.GetCommandLineArgs()[1..argsLength];
         }
 
         private static void PrintUsage()
@@ -55,11 +55,11 @@ namespace App
             Run(text);
             if (HadError)
             {
-                Environment.Exit(65);
+                System.Environment.Exit(65);
             }
             if (HadRuntimeError)
             {
-                Environment.Exit(70);
+                System.Environment.Exit(70);
             }
         }
 
