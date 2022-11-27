@@ -1,10 +1,8 @@
-var comparer = "abcdef";
+var a = 0;
+var temp;
 
-if (comparer == "abcdefg")
-{
-    print comparer;
-}
-else
-{
-    print "hit false";
+for (var b = 1; a < 10000; b = temp + b) {
+  print a;
+  temp = a;
+  a = b;
 }
