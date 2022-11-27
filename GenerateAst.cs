@@ -28,7 +28,8 @@ namespace App
                 "Expression : Expr expression",
                 "If         : Expr Condition, Stmt ThenBrach, Stmt ElseBranch",
                 "Print      : Expr expression",
-                "Var        : Token Name, Expr Initializer"
+                "Var        : Token Name, Expr Initializer",
+                "While      : Expr Condition, Stmt Body"
             });
         }
 

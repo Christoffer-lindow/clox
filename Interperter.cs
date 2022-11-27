@@ -235,5 +235,14 @@ namespace App
 
             return Evaluate(expr.Right);
         }
+
+        public object visitWhileStmt(Stmt.While stmt)
+        {
+            while (IsTruthy(Evaluate(stmt.Condition)))
+            {
+                Execute(stmt.Body);
+            }
+            return null;
+        }
     }
 }

@@ -27,7 +27,8 @@ namespace App
         {
             if (values.ContainsKey(name.Lexeme))
             {
-                values.Add(name.Lexeme, value);
+                values.Remove(name.Lexeme);
+                values.Add(name.Lexeme,value);
                 return;
             }
 

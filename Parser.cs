@@ -56,6 +56,7 @@ namespace App
         {
             if (Match(TokenType.IF)) return IfStatement();
             if (Match(TokenType.PRINT)) return PrintStatement();
+            if (Match(TokenType.WHILE)) return WhileStatement();
             if (Match(TokenType.LEFT_BRACE)) return new Stmt.Block(Block());
             return ExpressionStatement();
         }
@@ -82,6 +83,16 @@ namespace App
             Expr value = Expression();
             Consume(TokenType.SEMICOLON, "Expect ';' after value." );
             return new Stmt.Print(value);
+        }
+
+        private Stmt WhileStatement()
+        {
+            Consume(TokenType.LEFT_PAREN, "Expect '(' after 'while'");
+            Expr condition = Expression();
+            Consume(TokenType.RIGHT_PAREN, "Expect ')' after condition");
+            Stmt body = Statement();
+
+            return new Stmt.While(condition, body);
         }
 
         private Stmt ExpressionStatement()
@@ -118,7 +129,9 @@ namespace App
                 Token equals = Previous();
                 Expr value = Assignment();
 
-                if (typeof(Expr.Variable).IsInstanceOfType(value))
+                if (typeof(Expr.Variable).IsInstanceOfType(value) || 
+                    typeof(Expr.Literal).IsInstanceOfType(value) ||
+                    typeof(Expr.Binary).IsInstanceOfType(value))
                 {
                     Token name = ((Expr.Variable)expr).Name;
                     return new Expr.Assign(name, value);

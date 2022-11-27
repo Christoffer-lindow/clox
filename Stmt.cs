@@ -8,6 +8,7 @@ namespace App {
 		T visitIfStmt (If stmt );
 		T visitPrintStmt (Print stmt );
 		T visitVarStmt (Var stmt );
+		T visitWhileStmt (While stmt );
 	}
 	public class Block: Stmt{
 		public List<Stmt> Statements;
@@ -62,6 +63,18 @@ namespace App {
 		}
 		public override T accept<T>(Visitor<T> visitor) {
 			 return visitor.visitVarStmt(this);
+		}
+	}
+
+	public class While: Stmt{
+		public Expr Condition;
+		public Stmt Body;
+		public While(Expr Condition, Stmt Body) {
+			this.Condition = Condition;
+			this.Body = Body;
+		}
+		public override T accept<T>(Visitor<T> visitor) {
+			 return visitor.visitWhileStmt(this);
 		}
 	}
 
