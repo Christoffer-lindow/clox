@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System;
 namespace App
 {
-    public class Parser 
+    public class Parser
     {
         private List<Token> Tokens;
         private int Current = 0;
@@ -25,12 +25,13 @@ namespace App
 
         private Stmt Declaration()
         {
-            try 
+            try
             {
                 if (Match(TokenType.VAR)) return VarDeclaration();
 
                 return Statement();
-            } catch (ParseException ex)
+            }
+            catch (ParseException ex)
             {
                 Synchronize();
                 return null;
@@ -54,11 +55,62 @@ namespace App
 
         private Stmt Statement()
         {
+            if (Match(TokenType.FOR)) return ForStatement();
             if (Match(TokenType.IF)) return IfStatement();
             if (Match(TokenType.PRINT)) return PrintStatement();
             if (Match(TokenType.WHILE)) return WhileStatement();
             if (Match(TokenType.LEFT_BRACE)) return new Stmt.Block(Block());
             return ExpressionStatement();
+        }
+
+        private Stmt ForStatement()
+        {
+            Consume(TokenType.LEFT_PAREN, "Expect '(' after 'for'");
+
+            Stmt intializer;
+            if (Match(TokenType.SEMICOLON))
+            {
+                intializer = null;
+            }
+            else if (Match(TokenType.VAR))
+            {
+                intializer = VarDeclaration();
+            }
+            else
+            {
+                intializer = ExpressionStatement();
+            }
+            Expr condition = null;
+            if (!Check(TokenType.SEMICOLON))
+            {
+                condition = Expression();
+            }
+            Consume(TokenType.SEMICOLON, "Expect ';' after loop condition");
+
+            Expr increment = null;
+            if (!Check(TokenType.RIGHT_PAREN))
+            {
+                increment = Expression();
+            }
+            Consume(TokenType.RIGHT_PAREN, "Expect ')' after for clauses.");
+            Stmt body = Statement();
+
+            if (increment != null)
+            {
+                body = new Stmt.Block(
+                    new List<Stmt>() { body, new Stmt.Expression(increment) }
+                );
+            }
+
+            if (condition == null) condition = new Expr.Literal(true);
+            body = new Stmt.While(condition, body);
+
+            if (intializer != null)
+            {
+                body = new Stmt.Block(new List<Stmt>() { intializer, body });
+            }
+
+            return body;
         }
 
         private Stmt IfStatement()
@@ -81,7 +133,7 @@ namespace App
         private Stmt PrintStatement()
         {
             Expr value = Expression();
-            Consume(TokenType.SEMICOLON, "Expect ';' after value." );
+            Consume(TokenType.SEMICOLON, "Expect ';' after value.");
             return new Stmt.Print(value);
         }
 
@@ -124,12 +176,12 @@ namespace App
         {
             Expr expr = Or();
 
-            if (Match(TokenType.EQUAL))   
+            if (Match(TokenType.EQUAL))
             {
                 Token equals = Previous();
                 Expr value = Assignment();
 
-                if (typeof(Expr.Variable).IsInstanceOfType(value) || 
+                if (typeof(Expr.Variable).IsInstanceOfType(value) ||
                     typeof(Expr.Literal).IsInstanceOfType(value) ||
                     typeof(Expr.Binary).IsInstanceOfType(value))
                 {
@@ -170,7 +222,7 @@ namespace App
         private Expr Equality()
         {
             Expr expr = Comparision();
-            var tokenTypes = new TokenType[] { TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL};
+            var tokenTypes = new TokenType[] { TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL };
 
             while (Match(tokenTypes))
             {
@@ -185,7 +237,7 @@ namespace App
         {
             foreach (TokenType tokenType in tokenTypes)
             {
-                if(Match(tokenType))
+                if (Match(tokenType))
                 {
                     return true;
                 }
@@ -197,10 +249,10 @@ namespace App
         private bool Match(TokenType tokenType)
         {
             if (Check(tokenType))
-                {
-                    Advance();
-                    return true;
-                }
+            {
+                Advance();
+                return true;
+            }
             return false;
         }
 
@@ -221,7 +273,7 @@ namespace App
             return Peek().Type == TokenType.EOF;
         }
 
-        private Token Peek() 
+        private Token Peek()
         {
             return Tokens[Current];
         }
@@ -234,7 +286,7 @@ namespace App
         private Expr Comparision()
         {
             Expr expr = Term();
-            var tokenTypes = new TokenType[] {TokenType.GREATER, TokenType.GREATER_EQUAL, TokenType.LESS, TokenType.LESS_EQUAL};
+            var tokenTypes = new TokenType[] { TokenType.GREATER, TokenType.GREATER_EQUAL, TokenType.LESS, TokenType.LESS_EQUAL };
             while (Match(tokenTypes))
             {
                 Token op = Previous();
@@ -248,7 +300,7 @@ namespace App
         {
             Expr expr = Factor();
 
-            var tokenTypes = new TokenType[] {TokenType.MINUS, TokenType.PLUS};
+            var tokenTypes = new TokenType[] { TokenType.MINUS, TokenType.PLUS };
 
             while (Match(tokenTypes))
             {
@@ -263,13 +315,13 @@ namespace App
         private Expr Factor()
         {
             Expr expr = this.Unary();
-            var tokenTypes = new TokenType[] {TokenType.SLASH, TokenType.STAR};
+            var tokenTypes = new TokenType[] { TokenType.SLASH, TokenType.STAR };
 
             while (Match(tokenTypes))
             {
                 Token op = Previous();
                 Expr right = this.Unary();
-                expr = new Expr.Binary(expr,op, right);
+                expr = new Expr.Binary(expr, op, right);
             }
 
             return expr;
@@ -277,7 +329,7 @@ namespace App
 
         private Expr Unary()
         {
-            var tokenTypes = new TokenType[] {TokenType.BANG, TokenType.MINUS};
+            var tokenTypes = new TokenType[] { TokenType.BANG, TokenType.MINUS };
 
             if (Match(tokenTypes))
             {
@@ -294,7 +346,7 @@ namespace App
             if (Match(TokenType.TRUE)) return new Expr.Literal(true);
             if (Match(TokenType.NIL)) return new Expr.Literal(null);
 
-            var tokenTypes = new TokenType[] { TokenType.NUMBER, TokenType.STRING};
+            var tokenTypes = new TokenType[] { TokenType.NUMBER, TokenType.STRING };
 
             if (Match(tokenTypes))
             {
@@ -341,7 +393,7 @@ namespace App
         {
             Advance();
 
-            while(!IsAtEnd())
+            while (!IsAtEnd())
             {
                 if (Previous().Type == TokenType.SEMICOLON) return;
 
