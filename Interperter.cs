@@ -5,6 +5,7 @@ namespace App
 {
     class Interperter : Expr.Visitor<object>, Stmt.Visitor<object>
     {
+        private Environment environment = new Environment();
         public void Interpret(List<Stmt> statements)
         {
             try {
@@ -21,6 +22,20 @@ namespace App
         private void Execute(Stmt stmt)
         {
             stmt.accept(this);
+        }
+
+        private void ExecuteBlock(List<Stmt> statements, Environment env)
+        {
+            var previous = environment;
+            try {
+                this.environment = env;
+                foreach(var statement in statements)
+                {
+                    Execute(statement);
+                }
+            } finally {
+                this.environment = previous;
+            }
         }
 
         private string Stringify(object obj)
@@ -44,10 +59,10 @@ namespace App
             object left = Evaluate(expr.Left);
             object right = Evaluate(expr.Right);
 
-            switch (expr.op.Type)
+            switch (expr.Op.Type)
             {
                 case TokenType.MINUS:
-                    CheckNumberOperands(expr.op, left, right);
+                    CheckNumberOperands(expr.Op, left, right);
                     return (double)left - (double)right;
                 case TokenType.PLUS:
                     if (typeof(Double).IsInstanceOfType(left) && typeof(Double).IsInstanceOfType(right))
@@ -59,24 +74,24 @@ namespace App
                     {
                         return (String)left + (String)right;
                     }
-                throw new RuntimeException(expr.op, "Operand must be a number");
+                throw new RuntimeException(expr.Op, "Operand must be a number");
                 case TokenType.SLASH:
-                    CheckNumberOperands(expr.op, left, right);
+                    CheckNumberOperands(expr.Op, left, right);
                     return (double)left / (double)right;
                 case TokenType.STAR:
-                    CheckNumberOperands(expr.op, left, right);
+                    CheckNumberOperands(expr.Op, left, right);
                     return (double)left * (double)right;
                 case TokenType.GREATER:
-                    CheckNumberOperands(expr.op, left, right);
+                    CheckNumberOperands(expr.Op, left, right);
                     return (double)left > (double)right;
                 case TokenType.GREATER_EQUAL:
-                    CheckNumberOperands(expr.op, left, right);
+                    CheckNumberOperands(expr.Op, left, right);
                     return (double)left >= (double)right;
                 case TokenType.LESS:
-                    CheckNumberOperands(expr.op, left, right);
+                    CheckNumberOperands(expr.Op, left, right);
                     return (double)left < (double)right;
                 case TokenType.LESS_EQUAL:
-                    CheckNumberOperands(expr.op, left, right);
+                    CheckNumberOperands(expr.Op, left, right);
                     return (double)left <= (double)right;
                 case TokenType.BANG_EQUAL: return !IsEqual(left, right);
                 case TokenType.EQUAL_EQUAL: return IsEqual(left, right);
@@ -155,8 +170,39 @@ namespace App
 
         public object visitPrintStmt(Stmt.Print stmt)
         {
-            object value = stmt.expression.accept(this);
+            object value = Evaluate(stmt.expression);
             Console.WriteLine(Stringify(value));
+            return null;
+        }
+
+        public object visitVariableExpr(Expr.Variable expr)
+        {
+            return environment.Get(expr.Name);
+        }
+
+        public object visitVarStmt(Stmt.Var stmt)
+        {
+            object val = null;
+
+            if (stmt.Initializer != null)
+            {
+                val = Evaluate(stmt.Initializer);
+            }
+
+            environment.Define(stmt.Name.Lexeme, val);
+            return null;
+        }
+
+        public object visitAssignExpr(Expr.Assign expr)
+        {
+            object val = Evaluate(expr.value);
+            environment.Assign(expr.Name, val);
+            return val;
+        }
+
+        public object visitBlockStmt(Stmt.Block stmt)
+        {
+            ExecuteBlock(stmt.Statements, new Environment(environment));
             return null;
         }
     }
